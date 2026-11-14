@@ -8,6 +8,10 @@ public class AllTests {
         ConfigLoaderTest.run(r);
         LoggerTest.run(r);
         MimeMapTest.run(r);
+        HandlerTest.run(r);
+        PreconditionsTest.run(r);
+        DetectorTest.run(r);
+        DispatcherTest.run(r);
 
         int code = r.summary();
         System.exit(code);

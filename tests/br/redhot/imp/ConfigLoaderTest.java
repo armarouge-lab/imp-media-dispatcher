@@ -78,7 +78,14 @@ public class ConfigLoaderTest {
 
         // builtin: sem path, sem user, sem system → usa builtin
         r.test("config.builtin");
-        cfg = ConfigLoader.load(null, new Logger());
+        String origHome = System.getProperty("user.home");
+        Path emptyHome = Files.createTempDirectory("imp-empty-home-");
+        System.setProperty("user.home", emptyHome.toString());
+        try {
+            cfg = ConfigLoader.load(null, new Logger());
+        } finally {
+            System.setProperty("user.home", origHome);
+        }
         r.eq(1, cfg.version(), "version builtin");
         r.ok(cfg.rules().size() >= 20, "rules >= 20 (builtin tem 27)");
     }
