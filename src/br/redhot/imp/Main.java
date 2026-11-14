@@ -23,7 +23,7 @@ public class Main {
         if (debugOverride) log.setThreshold(Logger.Level.DEBUG);
 
         switch (parsed.command()) {
-            case VERSION -> { System.out.println("imp 0.3.0"); return; }
+            case VERSION -> { System.out.println("imp 0.9.0"); return; }
             case HELP -> { printHelp(); return; }
             case LIST_MAPPINGS, LIST_HANDLERS, SELFTEST, DISPATCH -> { }
         }

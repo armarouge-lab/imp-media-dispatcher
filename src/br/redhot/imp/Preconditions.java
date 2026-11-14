@@ -14,7 +14,7 @@ public final class Preconditions {
             throw new PreconditionException("file not found: " + rawPath);
         }
         if (Files.isDirectory(path)) {
-            throw new PreconditionException("directories are handled by nid, not imp");
+            throw new PreconditionException("directories are handled by dgn, not imp");
         }
         if (!Files.isReadable(path)) {
             throw new PreconditionException("file not readable: " + rawPath);

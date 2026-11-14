@@ -3,4 +3,4 @@ cat > .gitignore <<'EOF'
 *.class
 imp.jar
 *.log
-EOF
+EOF.build-tests/
