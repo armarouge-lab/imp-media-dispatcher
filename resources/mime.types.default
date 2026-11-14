@@ -1,0 +1,11 @@
+# mime.types.default — auxiliary extension-to-MIME map for Imp
+
+application/pdf                                pdf
+video/mp4                                      mp4 m4v
+video/x-matroska                               mkv
+image/png                                      png
+image/jpeg                                     jpg jpeg
+text/plain                                     txt
+text/markdown                                  md
+text/x-c                                       c h
+application/json                               json

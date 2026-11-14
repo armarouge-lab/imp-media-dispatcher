@@ -1,0 +1,38 @@
+# imp.conf.default — defaults for Imp
+# See IMP MEDIA DISPATCHER.txt §6.1 for full documentation.
+
+version=1
+fallback=xdg-open
+detect_mime=true
+detect_file_cmd=file
+log_level=warn
+log_file=
+
+# Rules: type.pattern=command
+ext.pdf=zathura
+ext.mp4=mpv
+ext.mkv=mpv
+ext.avi=mpv
+ext.png=imv
+ext.jpg=imv
+ext.jpeg=imv
+ext.gif=imv
+ext.svg=imv
+ext.mp3=mpv
+ext.flac=mpv
+ext.ogg=mpv
+ext.wav=mpv
+ext.md=devil
+ext.txt=devil
+ext.c=devil
+ext.h=devil
+ext.py=devil
+ext.sh=devil
+ext.json=devil
+ext.yaml=devil
+ext.toml=devil
+mime.application/pdf=zathura
+mime.video/mp4=mpv
+mime.audio/mpeg=mpv
+mime.image/png=imv
+mime.text/plain=devil
