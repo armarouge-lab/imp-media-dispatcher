@@ -4,7 +4,6 @@ public class Main {
 
     public static void main(String[] args) {
         Logger log = new Logger();
-
         Cli.ParsedArgs parsed;
         try {
             parsed = Cli.parse(args);
@@ -20,7 +19,7 @@ public class Main {
         }
 
         switch (parsed.command()) {
-            case VERSION -> System.out.println("imp 0.1.0b");
+            case VERSION -> System.out.println("imp 0.2.0b");
             case HELP -> printHelp();
             case LIST_MAPPINGS -> System.exit(runListMappings(parsed, log));
             case LIST_HANDLERS -> {
@@ -31,10 +30,7 @@ public class Main {
                 System.err.println("imp: --selftest not implemented yet (V0.3.0)");
                 System.exit(ExitCode.EX_USAGE.code());
             }
-            case DISPATCH -> {
-                System.err.println("imp: dispatch not implemented yet (V0.2.0b)");
-                System.exit(ExitCode.EX_USAGE.code());
-            }
+            case DISPATCH -> System.exit(runDispatch(parsed, log));
         }
     }
 
@@ -50,6 +46,27 @@ public class Main {
             System.out.println(entry.getKey() + "=" + entry.getValue());
         }
         return ExitCode.EX_OK.code();
+    }
+
+    private static int runDispatch(Cli.ParsedArgs parsed, Logger log) {
+        ImpConfig cfg;
+        try {
+            cfg = ConfigLoader.load(parsed.configPath(), log);
+        } catch (ConfigException e) {
+            System.err.println("imp: config error: " + e.getMessage());
+            return ExitCode.EX_CONFIG_ERROR.code();
+        }
+
+        java.nio.file.Path file;
+        try {
+            file = Preconditions.validateFile(parsed.filePath());
+        } catch (PreconditionException e) {
+            System.err.println("imp: " + e.getMessage());
+            return ExitCode.EX_PRECOND.code();
+        }
+
+        Detector.ResolvedRule rule = Detector.resolveRule(cfg, file, log);
+        return Dispatcher.dispatch(cfg, file, rule, parsed.dryRun(), log);
     }
 
     private static void printHelp() {
