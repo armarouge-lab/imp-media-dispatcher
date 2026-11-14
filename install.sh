@@ -15,10 +15,7 @@ Usage: sh install.sh [--user|--system]
 USAGE
             exit 0
             ;;
-        *)
-            echo "imp: unknown arg: $arg" >&2
-            exit 64
-            ;;
+        *) echo "imp: unknown arg: $arg" >&2; exit 64 ;;
     esac
 done
 
@@ -32,6 +29,7 @@ if ! command -v java >/dev/null 2>&1 || ! command -v javac >/dev/null 2>&1; then
     exit 1
 fi
 
+PKG_INSTALL=""
 case "$(uname -s)" in
     Linux*)
         if [ -f /etc/debian_version ]; then
@@ -87,9 +85,34 @@ if ! command -v xdg-open >/dev/null 2>&1; then
             y|Y) ;;
             *) echo "aborted"; exit 1 ;;
         esac
-    else
-        echo "imp: non-interactive, continuing" >&2
     fi
+fi
+
+if [ -t 0 ] && [ -n "$PKG_INSTALL" ]; then
+    echo ""
+    echo "Optional handlers (recommended for common formats):"
+    for pkg in mpv imv zathura; do
+        if command -v "$pkg" >/dev/null 2>&1; then
+            echo "  $pkg: already installed"
+            continue
+        fi
+        printf "  install %s? [y/N] " "$pkg"
+        read answer
+        case "$answer" in
+            y|Y)
+                if [ "$MODE" = "system" ]; then
+                    if ! $PKG_INSTALL "$pkg"; then
+                        echo "imp: failed to install $pkg" >&2
+                    fi
+                else
+                    if ! sudo $PKG_INSTALL "$pkg"; then
+                        echo "imp: failed to install $pkg (need sudo?)" >&2
+                    fi
+                fi
+                ;;
+            *) echo "  skipped $pkg" ;;
+        esac
+    done
 fi
 
 echo ""

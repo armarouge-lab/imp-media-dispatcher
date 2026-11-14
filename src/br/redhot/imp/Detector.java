@@ -22,9 +22,7 @@ public final class Detector {
     }
 
     public static Optional<String> mime(Path file, String fileCmd, Logger log) {
-        if (!isExecutableOnPath(fileCmd)) {
-            return Optional.empty();
-        }
+        if (!isExecutableOnPath(fileCmd)) return Optional.empty();
         try {
             ProcessBuilder pb = new ProcessBuilder(fileCmd, "--brief", "--mime-type", file.toString());
             pb.redirectError(ProcessBuilder.Redirect.DISCARD);
@@ -48,22 +46,43 @@ public final class Detector {
         }
     }
 
-    public static ResolvedRule resolveRule(ImpConfig cfg, Path file, Logger log) {
+    public static ResolvedRule resolveRule(ImpConfig cfg, Path file, MimeMap mimeMap, Logger log) {
+        String ext = extension(file);
+        String mimeFromFile = null;
+        boolean fileDetectionOk = false;
+
         if (cfg.detectMime()) {
-            Optional<String> mime = mime(file, cfg.detectFileCmd(), log);
-            if (mime.isPresent()) {
-                String key = "mime." + mime.get().toLowerCase();
+            Optional<String> m = mime(file, cfg.detectFileCmd(), log);
+            if (m.isPresent()) {
+                mimeFromFile = m.get();
+                fileDetectionOk = true;
+            }
+        }
+
+        if (fileDetectionOk) {
+            String key = "mime." + mimeFromFile.toLowerCase();
+            String handler = cfg.rules().get(key);
+            log.debug("detect", "mime=" + mimeFromFile + " key=" + key + " -> "
+                    + (handler == null ? "(no rule)" : handler));
+            if (handler != null) {
+                return new ResolvedRule(key, handler);
+            }
+        } else {
+            String mimeFromTypes = mimeMap.mimeFor(ext);
+            if (mimeFromTypes != null) {
+                String key = "mime." + mimeFromTypes.toLowerCase();
                 String handler = cfg.rules().get(key);
-                log.debug("detect", "mime=" + mime.get() + " key=" + key + " -> " + (handler == null ? "(no rule)" : handler));
+                log.debug("detect", "ext=" + ext + " via mime.types=" + mimeFromTypes
+                        + " key=" + key + " -> " + (handler == null ? "(no rule)" : handler));
                 if (handler != null) {
                     return new ResolvedRule(key, handler);
                 }
             }
         }
-        String ext = extension(file);
+
         String key = "ext." + ext;
         String handler = cfg.rules().get(key);
-        log.debug("detect", "ext=" + ext + " key=" + key + " -> " + handler);
+        log.debug("detect", "ext=" + ext + " key=" + key + " -> " + (handler == null ? "(no rule)" : handler));
         if (handler != null) {
             return new ResolvedRule(key, handler);
         }
@@ -73,9 +92,7 @@ public final class Detector {
 
     private static boolean isExecutableOnPath(String command) {
         if (command == null || command.isEmpty()) return false;
-        if (command.contains("/")) {
-            return java.nio.file.Files.isExecutable(Path.of(command));
-        }
+        if (command.contains("/")) return java.nio.file.Files.isExecutable(Path.of(command));
         String pathEnv = System.getenv("PATH");
         if (pathEnv == null) return false;
         for (String dir : pathEnv.split(":")) {

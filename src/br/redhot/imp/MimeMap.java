@@ -14,8 +14,10 @@ import java.util.Map;
 public final class MimeMap {
 
     private static final String USER_PATH = ".config/redhot/imp/mime.types";
-    private static final String SYSTEM_DEBIAN = "/etc/redhot/imp/mime.types";
-    private static final String SYSTEM_FREEBSD = "/usr/local/etc/redhot/imp/mime.types";
+    private static final String[] SYSTEM_PATHS = {
+            "/etc/redhot/imp/mime.types",
+            "/usr/local/etc/redhot/imp/mime.types"
+    };
     private static final String BUILTIN = "/mime.types.default";
 
     private final Map<String, String> byMime;
@@ -31,27 +33,9 @@ public final class MimeMap {
         return byExt.get(ext.toLowerCase());
     }
 
-    public String extFor(String mime) {
-        return byMime.get(mime);
-    }
+    public int size() { return byExt.size(); }
 
-    public int size() {
-        return byExt.size();
-    }
-
-    public static MimeMap load(String explicitPath, Logger log) throws ConfigException {
-        if (explicitPath != null) {
-            Path path = Path.of(explicitPath);
-            if (!Files.isReadable(path)) {
-                throw new ConfigException("mime.types not readable: " + path);
-            }
-            try (InputStream in = Files.newInputStream(path)) {
-                return parse(in, path.toString());
-            } catch (IOException e) {
-                throw new ConfigException("cannot read mime.types: " + e.getMessage(), e);
-            }
-        }
-
+    public static MimeMap load(Logger log) throws ConfigException {
         Path resolved = resolveDefault(log);
         if (resolved != null) {
             try (InputStream in = Files.newInputStream(resolved)) {
@@ -60,7 +44,6 @@ public final class MimeMap {
                 throw new ConfigException("cannot read mime.types: " + e.getMessage(), e);
             }
         }
-
         InputStream in = MimeMap.class.getResourceAsStream(BUILTIN);
         if (in == null) {
             throw new ConfigException("built-in mime.types not found in jar");
@@ -76,14 +59,11 @@ public final class MimeMap {
         String home = System.getProperty("user.home");
         if (home != null) {
             Path user = Path.of(home, USER_PATH);
-            if (Files.isReadable(user)) {
-                return user;
-            }
+            if (Files.isReadable(user)) return user;
         }
-        String os = System.getProperty("os.name", "").toLowerCase();
-        Path system = Path.of(os.contains("freebsd") ? SYSTEM_FREEBSD : SYSTEM_DEBIAN);
-        if (Files.isReadable(system)) {
-            return system;
+        for (String sysPath : SYSTEM_PATHS) {
+            Path p = Path.of(sysPath);
+            if (Files.isReadable(p)) return p;
         }
         log.warn("mime", "no mime.types in user or system path, using built-in default");
         return null;
@@ -92,20 +72,15 @@ public final class MimeMap {
     private static MimeMap parse(InputStream in, String source) throws IOException, ConfigException {
         Map<String, String> byMime = new LinkedHashMap<>();
         Map<String, String> byExt = new LinkedHashMap<>();
-
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             String line;
             int lineNo = 0;
             while ((line = reader.readLine()) != null) {
                 lineNo++;
                 String trimmed = line.trim();
-                if (trimmed.isEmpty() || trimmed.startsWith("#")) {
-                    continue;
-                }
+                if (trimmed.isEmpty() || trimmed.startsWith("#")) continue;
                 String[] parts = trimmed.split("\\s+");
-                if (parts.length < 2) {
-                    continue;
-                }
+                if (parts.length < 2) continue;
                 String mime = parts[0];
                 if (!mime.contains("/")) {
                     throw new ConfigException(source + ":" + lineNo + ": invalid mime: " + mime);
@@ -117,7 +92,6 @@ public final class MimeMap {
                 }
             }
         }
-
         return new MimeMap(
                 Collections.unmodifiableMap(byMime),
                 Collections.unmodifiableMap(byExt));

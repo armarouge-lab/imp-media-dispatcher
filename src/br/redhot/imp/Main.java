@@ -9,7 +9,6 @@ public class Main {
 
     public static void main(String[] args) {
         Logger log = new Logger();
-
         Cli.ParsedArgs parsed;
         try {
             parsed = Cli.parse(args);
@@ -21,9 +20,7 @@ public class Main {
         }
 
         boolean debugOverride = parsed.debug();
-        if (debugOverride) {
-            log.setThreshold(Logger.Level.DEBUG);
-        }
+        if (debugOverride) log.setThreshold(Logger.Level.DEBUG);
 
         switch (parsed.command()) {
             case VERSION -> { System.out.println("imp 0.3.0"); return; }
@@ -57,11 +54,20 @@ public class Main {
             }
         }
 
+        MimeMap mimeMap;
+        try {
+            mimeMap = MimeMap.load(log);
+        } catch (ConfigException e) {
+            System.err.println("imp: mime.types error: " + e.getMessage());
+            System.exit(ExitCode.EX_CONFIG_ERROR.code());
+            return;
+        }
+
         switch (parsed.command()) {
             case LIST_MAPPINGS -> System.exit(runListMappings(cfg, parsed.json()));
             case LIST_HANDLERS -> System.exit(runListHandlers(cfg, parsed.json()));
             case SELFTEST -> System.exit(runSelftest(cfg, parsed.json()));
-            case DISPATCH -> System.exit(runDispatch(cfg, parsed, log));
+            case DISPATCH -> System.exit(runDispatch(cfg, mimeMap, parsed, log));
             case VERSION, HELP -> { }
         }
     }
@@ -102,7 +108,6 @@ public class Main {
         if (cfg.fallback() != null && !cfg.fallback().isEmpty()) {
             roles.put(cfg.fallback(), "fallback");
         }
-
         if (json) {
             System.out.println("[");
             boolean first = true;
@@ -132,7 +137,6 @@ public class Main {
         boolean xdgOk = Handler.available("xdg-open");
         boolean fileOk = Handler.available("file");
         boolean requiredOk = javaOk;
-
         if (json) {
             System.out.println("{");
             System.out.println("  \"java\":{\"version\":" + Json.escape(javaVer)
@@ -152,7 +156,7 @@ public class Main {
         return requiredOk ? ExitCode.EX_OK.code() : ExitCode.EX_PRECOND.code();
     }
 
-    private static int runDispatch(ImpConfig cfg, Cli.ParsedArgs parsed, Logger log) {
+    private static int runDispatch(ImpConfig cfg, MimeMap mimeMap, Cli.ParsedArgs parsed, Logger log) {
         Path file;
         try {
             file = Preconditions.validateFile(parsed.filePath());
@@ -160,7 +164,7 @@ public class Main {
             System.err.println("imp: " + e.getMessage());
             return ExitCode.EX_PRECOND.code();
         }
-        Detector.ResolvedRule rule = Detector.resolveRule(cfg, file, log);
+        Detector.ResolvedRule rule = Detector.resolveRule(cfg, file, mimeMap, log);
         return Dispatcher.dispatch(cfg, file, rule, parsed.dryRun(), log);
     }
 

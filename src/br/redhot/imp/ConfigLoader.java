@@ -14,8 +14,10 @@ import java.util.Map;
 public final class ConfigLoader {
 
     private static final String USER_PATH = ".config/redhot/imp/imp.conf";
-    private static final String SYSTEM_DEBIAN = "/etc/redhot/imp/imp.conf";
-    private static final String SYSTEM_FREEBSD = "/usr/local/etc/redhot/imp/imp.conf";
+    private static final String[] SYSTEM_PATHS = {
+            "/etc/redhot/imp/imp.conf",
+            "/usr/local/etc/redhot/imp/imp.conf"
+    };
     private static final String BUILTIN = "/imp.conf.default";
 
     private ConfigLoader() {}
@@ -61,10 +63,11 @@ public final class ConfigLoader {
                 return user;
             }
         }
-        String os = System.getProperty("os.name", "").toLowerCase();
-        Path system = Path.of(os.contains("freebsd") ? SYSTEM_FREEBSD : SYSTEM_DEBIAN);
-        if (Files.isReadable(system)) {
-            return system;
+        for (String sysPath : SYSTEM_PATHS) {
+            Path p = Path.of(sysPath);
+            if (Files.isReadable(p)) {
+                return p;
+            }
         }
         log.warn("config", "no imp.conf in user or system path, using built-in default");
         return null;
@@ -96,6 +99,10 @@ public final class ConfigLoader {
                 }
                 String key = trimmed.substring(0, eq).trim();
                 String value = trimmed.substring(eq + 1).trim();
+                if (value.contains("=")) {
+                    throw new ConfigException(
+                            source + ":" + lineNo + ": value contains '=' (not escaped, rejected)");
+                }
 
                 switch (key) {
                     case "version" -> {
@@ -132,7 +139,17 @@ public final class ConfigLoader {
                                     source + ":" + lineNo + ": invalid log_level: " + value);
                         }
                     }
-                    case "log_file" -> logFile = value;
+                    case "log_file" -> {
+                        if (!value.isEmpty()) {
+                            Path p = Path.of(value);
+                            Path parent = p.toAbsolutePath().getParent();
+                            if (parent != null && !Files.isWritable(parent)) {
+                                throw new ConfigException(
+                                        source + ":" + lineNo + ": log_file dir not writable: " + value);
+                            }
+                        }
+                        logFile = value;
+                    }
                     default -> {
                         if (key.startsWith("ext.")) {
                             String ext = key.substring(4).toLowerCase();
@@ -163,33 +180,18 @@ public final class ConfigLoader {
         }
 
         return new ImpConfig(
-                version,
-                fallback,
-                detectMime,
-                detectFileCmd,
-                logLevel,
-                logFile,
+                version, fallback, detectMime, detectFileCmd, logLevel, logFile,
                 Collections.unmodifiableMap(new LinkedHashMap<>(rules)));
     }
 
     private static boolean isExecutableOnPath(String command) {
-        if (command == null || command.isEmpty()) {
-            return false;
-        }
-        if (command.contains("/")) {
-            return Files.isExecutable(Path.of(command));
-        }
+        if (command == null || command.isEmpty()) return false;
+        if (command.contains("/")) return Files.isExecutable(Path.of(command));
         String pathEnv = System.getenv("PATH");
-        if (pathEnv == null) {
-            return false;
-        }
+        if (pathEnv == null) return false;
         for (String dir : pathEnv.split(":")) {
-            if (dir.isEmpty()) {
-                continue;
-            }
-            if (Files.isExecutable(Path.of(dir, command))) {
-                return true;
-            }
+            if (dir.isEmpty()) continue;
+            if (Files.isExecutable(Path.of(dir, command))) return true;
         }
         return false;
     }
