@@ -1,5 +1,12 @@
 package br.redhot.imp;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
 public class Logger {
 
     public enum Level {
@@ -7,9 +14,20 @@ public class Logger {
     }
 
     private Level threshold = Level.WARN;
+    private PrintWriter fileWriter;
 
     public void setThreshold(Level level) {
         this.threshold = level;
+    }
+
+    public void setLogFile(Path path) throws IOException {
+        if (fileWriter != null) {
+            fileWriter.close();
+        }
+        this.fileWriter = new PrintWriter(
+                Files.newBufferedWriter(path, StandardCharsets.UTF_8,
+                        StandardOpenOption.CREATE, StandardOpenOption.APPEND),
+                true);
     }
 
     public void error(String action, String detail) { log(Level.ERROR, action, detail); }
@@ -17,11 +35,15 @@ public class Logger {
     public void info(String action, String detail)  { log(Level.INFO,  action, detail); }
     public void debug(String action, String detail) { log(Level.DEBUG, action, detail); }
 
-    public void log(Level level, String action, String detail) {
+    public synchronized void log(Level level, String action, String detail) {
         if (level.ordinal() > threshold.ordinal()) {
             return;
         }
         long epoch = System.currentTimeMillis() / 1000L;
-        System.err.printf("%d %s %s %s%n", epoch, level.name(), action, detail);
+        String line = String.format("%d %s %s %s", epoch, level.name(), action, detail);
+        System.err.println(line);
+        if (fileWriter != null) {
+            fileWriter.println(line);
+        }
     }
 }

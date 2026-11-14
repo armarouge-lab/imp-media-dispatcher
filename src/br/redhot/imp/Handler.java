@@ -6,7 +6,7 @@ import java.util.List;
 
 public record Handler(String command, Path file) {
 
-    public boolean isAvailable() {
+    public static boolean available(String command) {
         if (command == null || command.isEmpty()) return false;
         if (command.contains("/")) {
             return Files.isExecutable(Path.of(command));
@@ -18,6 +18,10 @@ public record Handler(String command, Path file) {
             if (Files.isExecutable(Path.of(dir, command))) return true;
         }
         return false;
+    }
+
+    public boolean isAvailable() {
+        return available(command);
     }
 
     public List<String> toArgv() {

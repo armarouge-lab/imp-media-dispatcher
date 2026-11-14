@@ -1,0 +1,90 @@
+.Dd November 14, 2026
+.Dt IMP 1
+.Os
+.Sh NAME
+.Nm imp
+.Nd media dispatcher for the Redhot suite
+.Sh SYNOPSIS
+.Nm
+.Ar file
+.Nm
+.Cm \-\-dry-run
+.Ar file
+.Nm
+.Cm \-\-list-mappings
+.Nm
+.Cm \-\-list-handlers
+.Nm
+.Cm \-\-selftest
+.Nm
+.Cm \-\-version
+.Nm
+.Cm \-\-help
+.Sh DESCRIPTION
+.Nm
+receives a file path, decides which application should open it,
+and delegates execution without an intermediate shell.
+.Pp
+.Nm
+never modifies the file.
+It opens, delegates, and exits.
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Cm \-\-dry-run
+Print the dispatch plan to stdout without executing the handler.
+.It Cm \-\-config Ar path
+Use an alternate
+.Pa imp.conf .
+.It Cm \-\-debug
+Enable debug\-level logging to stderr for this invocation.
+.It Cm \-\-json
+Emit JSON instead of plain text (valid with
+.Cm \-\-list-mappings ,
+.Cm \-\-list-handlers ,
+and
+.Cm \-\-selftest ) .
+.It Cm \-\-list-mappings
+Print every loaded rule as
+.Ar key Ns = Ns Ar command .
+.It Cm \-\-list-handlers
+Print every handler with its availability (OK/MISSING).
+.It Cm \-\-selftest
+Report on the runtime environment. Exit 0 if required items are present.
+.It Cm \-\-version
+Print version and exit.
+.It Cm \-\-help
+Print usage and exit.
+.El
+.Sh FILES
+.Bl -tag -width Ds
+.It Pa ~/.config/redhot/imp/imp.conf
+Per\-user configuration.
+.It Pa /etc/redhot/imp/imp.conf
+System configuration (Debian, OpenBSD).
+.It Pa /usr/local/etc/redhot/imp/imp.conf
+System configuration (FreeBSD).
+.It Pa ~/.config/redhot/imp/mime.types
+Auxiliary extension\-to\-MIME map.
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds
+.It 0
+Handler executed successfully, or dry\-run completed.
+.It 1
+No rule matched and no fallback is configured.
+.It 2
+All handlers in the chain failed to execute.
+.It 3
+File missing, unreadable, or is a directory.
+.It 4
+Configuration invalid.
+.It 5
+Interrupted (SIGINT).
+.It 64
+Usage error.
+.El
+.Sh SEE ALSO
+.Xr file 1 ,
+.Xr xdg-open 1
+.Sh AUTHORS
+.An The RedhotBSD Authors
