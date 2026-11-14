@@ -1,0 +1,6 @@
+cat > .gitignore <<'EOF'
+.build/
+*.class
+imp.jar
+*.log
+EOF
