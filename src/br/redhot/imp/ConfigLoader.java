@@ -82,6 +82,7 @@ public final class ConfigLoader {
         String detectFileCmd = "file";
         String logLevel = "warn";
         String logFile = "";
+        String editorValue = null;
         Map<String, String> rules = new LinkedHashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
@@ -150,6 +151,12 @@ public final class ConfigLoader {
                         }
                         logFile = value;
                     }
+                    case "editor" -> {
+                        if (!isExecutableOnPath(value)) {
+                            log.warn("config", "editor not on PATH: " + value);
+                        }
+                        editorValue = value;
+                    }
                     default -> {
                         if (key.startsWith("ext.")) {
                             String ext = key.substring(4).toLowerCase();
@@ -177,6 +184,15 @@ public final class ConfigLoader {
         }
         if (version != 1) {
             throw new ConfigException(source + ": unsupported version: " + version);
+        }
+
+        final String edFinal = editorValue;
+        if (rules.values().stream().anyMatch(v -> v.contains("$editor"))) {
+            if (edFinal == null) {
+                log.warn("config", source + ": rule uses $editor but no editor= set");
+            } else {
+                rules.replaceAll((k, v) -> v.replace("$editor", edFinal));
+            }
         }
 
         return new ImpConfig(

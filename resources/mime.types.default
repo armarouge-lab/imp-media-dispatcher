@@ -1,11 +1,98 @@
 # mime.types.default — auxiliary extension-to-MIME map for Imp
+# Format: mime/type    ext1 ext2 ext3
 
+# Documents
 application/pdf                                pdf
-video/mp4                                      mp4 m4v
-video/x-matroska                               mkv
+application/epub+zip                           epub
+application/x-djvu                             djvu
+application/msword                             doc
+application/vnd.openxmlformats-officedocument.wordprocessingml.document docx
+application/vnd.oasis.opendocument.text        odt
+application/rtf                                rtf
+application/vnd.ms-excel                       xls
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet xlsx
+application/vnd.oasis.opendocument.spreadsheet ods
+application/vnd.ms-powerpoint                  ppt
+application/vnd.openxmlformats-officedocument.presentationml.presentation pptx
+application/vnd.oasis.opendocument.presentation odp
+
+# Images
 image/png                                      png
 image/jpeg                                     jpg jpeg
-text/plain                                     txt
+image/gif                                      gif
+image/svg+xml                                  svg
+image/webp                                     webp
+image/bmp                                      bmp
+image/tiff                                     tiff tif
+image/x-icon                                   ico
+image/avif                                     avif
+image/heic                                     heic
+
+# Video
+video/mp4                                      mp4 m4v
+video/x-matroska                               mkv
+video/webm                                     webm
+video/quicktime                                mov
+video/x-msvideo                                avi
+video/x-ms-wmv                                 wmv
+video/x-flv                                    flv
+video/mpeg                                     mpg mpeg
+video/3gpp                                     3gp
+video/ogg                                      ogv
+
+# Audio
+audio/mpeg                                     mp3
+audio/flac                                     flac
+audio/ogg                                      ogg oga
+audio/wav                                      wav
+audio/mp4                                      m4a
+audio/aac                                      aac
+audio/opus                                     opus
+audio/x-ms-wma                                 wma
+audio/midi                                     mid midi
+
+# Text and code
+text/plain                                     txt log
 text/markdown                                  md
 text/x-c                                       c h
+text/x-c++                                     cpp hpp
+text/x-python                                  py
+application/x-sh                               sh bash zsh
 application/json                               json
+application/x-yaml                             yaml yml
+application/toml                               toml
+application/xml                                xml
+text/html                                      html htm
+text/css                                       css
+application/javascript                         js
+application/typescript                         ts
+application/x-java-source                      java
+text/x-rust                                    rs
+text/x-go                                      go
+text/x-ruby                                    rb
+application/x-php                              php
+text/x-lua                                     lua
+application/sql                                sql
+text/csv                                       csv
+text/x-ini                                     ini cfg conf
+
+# Archives
+application/zip                                zip
+application/x-tar                              tar
+application/gzip                               gz tgz
+application/x-bzip2                            bz2
+application/x-xz                               xz
+application/x-7z-compressed                    7z
+application/x-rar-compressed                   rar
+application/zstd                               zst
+application/x-bittorrent                       torrent
+
+# Packages
+application/vnd.debian.binary-package          deb
+application/x-rpm                              rpm
+
+# Fonts
+font/ttf                                       ttf
+font/otf                                       otf
+font/woff                                      woff
+font/woff2                                     woff2

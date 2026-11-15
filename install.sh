@@ -113,6 +113,26 @@ if [ -t 0 ] && [ -n "$PKG_INSTALL" ]; then
             *) echo "  skipped $pkg" ;;
         esac
     done
+
+    if ! command -v libreoffice >/dev/null 2>&1; then
+        echo ""
+        printf "  install libreoffice? (big, ~300MB, for docx/xlsx/pptx) [y/N] "
+        read answer
+        case "$answer" in
+            y|Y)
+                if [ "$MODE" = "system" ]; then
+                    if ! $PKG_INSTALL libreoffice; then
+                        echo "imp: failed to install libreoffice" >&2
+                    fi
+                else
+                    if ! sudo $PKG_INSTALL libreoffice; then
+                        echo "imp: failed to install libreoffice (need sudo?)" >&2
+                    fi
+                fi
+                ;;
+            *) echo "  skipped libreoffice" ;;
+        esac
+    fi
 fi
 
 echo ""

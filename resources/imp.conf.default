@@ -8,31 +8,146 @@ detect_file_cmd=file
 log_level=warn
 log_file=
 
-# Rules: type.pattern=command
+# Text editor slot.
+# All text and code extensions point to $editor.
+# When Pegasus or Unicorn is ready, change this single line.
+editor=devil
+
+# ===== Documents =====
 ext.pdf=zathura
-ext.mp4=mpv
-ext.mkv=mpv
-ext.avi=mpv
+ext.djvu=zathura
+ext.epub=zathura
+ext.mobi=zathura
+
+# Office (xdg-open; install libreoffice to override)
+ext.doc=xdg-open
+ext.docx=xdg-open
+ext.odt=xdg-open
+ext.rtf=xdg-open
+ext.xls=xdg-open
+ext.xlsx=xdg-open
+ext.ods=xdg-open
+ext.ppt=xdg-open
+ext.pptx=xdg-open
+ext.odp=xdg-open
+
+# ===== Images (imv) =====
 ext.png=imv
 ext.jpg=imv
 ext.jpeg=imv
 ext.gif=imv
 ext.svg=imv
+ext.webp=imv
+ext.bmp=imv
+ext.tiff=imv
+ext.tif=imv
+ext.ico=imv
+ext.avif=imv
+ext.heic=imv
+
+# ===== Video (mpv) =====
+ext.mp4=mpv
+ext.mkv=mpv
+ext.avi=mpv
+ext.webm=mpv
+ext.mov=mpv
+ext.wmv=mpv
+ext.flv=mpv
+ext.m4v=mpv
+ext.mpg=mpv
+ext.mpeg=mpv
+ext.3gp=mpv
+ext.ogv=mpv
+
+# ===== Audio (mpv) =====
 ext.mp3=mpv
 ext.flac=mpv
 ext.ogg=mpv
 ext.wav=mpv
-ext.md=devil
-ext.txt=devil
-ext.c=devil
-ext.h=devil
-ext.py=devil
-ext.sh=devil
-ext.json=devil
-ext.yaml=devil
-ext.toml=devil
+ext.m4a=mpv
+ext.aac=mpv
+ext.opus=mpv
+ext.wma=mpv
+ext.mid=mpv
+ext.midi=mpv
+
+# ===== Text and code ($editor) =====
+ext.txt=$editor
+ext.md=$editor
+ext.log=$editor
+ext.c=$editor
+ext.h=$editor
+ext.cpp=$editor
+ext.hpp=$editor
+ext.py=$editor
+ext.sh=$editor
+ext.bash=$editor
+ext.zsh=$editor
+ext.json=$editor
+ext.yaml=$editor
+ext.yml=$editor
+ext.toml=$editor
+ext.xml=$editor
+ext.html=$editor
+ext.htm=$editor
+ext.css=$editor
+ext.js=$editor
+ext.ts=$editor
+ext.jsx=$editor
+ext.tsx=$editor
+ext.java=$editor
+ext.rs=$editor
+ext.go=$editor
+ext.rb=$editor
+ext.php=$editor
+ext.lua=$editor
+ext.sql=$editor
+ext.csv=$editor
+ext.ini=$editor
+ext.conf=$editor
+ext.cfg=$editor
+
+# ===== Archives (xdg-open) =====
+ext.zip=xdg-open
+ext.tar=xdg-open
+ext.gz=xdg-open
+ext.tgz=xdg-open
+ext.bz2=xdg-open
+ext.xz=xdg-open
+ext.7z=xdg-open
+ext.rar=xdg-open
+ext.zst=xdg-open
+ext.torrent=xdg-open
+
+# ===== Packages =====
+ext.deb=xdg-open
+ext.rpm=xdg-open
+
+# ===== Fonts =====
+ext.ttf=xdg-open
+ext.otf=xdg-open
+ext.woff=xdg-open
+ext.woff2=xdg-open
+
+# ===== MIME rules =====
 mime.application/pdf=zathura
+mime.application/epub+zip=zathura
+mime.application/x-djvu=zathura
 mime.video/mp4=mpv
+mime.video/x-matroska=mpv
+mime.video/webm=mpv
 mime.audio/mpeg=mpv
+mime.audio/flac=mpv
+mime.audio/ogg=mpv
 mime.image/png=imv
-mime.text/plain=devil
+mime.image/jpeg=imv
+mime.image/gif=imv
+mime.image/svg+xml=imv
+mime.image/webp=imv
+mime.text/plain=$editor
+mime.text/markdown=$editor
+mime.application/json=$editor
+mime.application/xml=$editor
+mime.application/zip=xdg-open
+mime.application/x-tar=xdg-open
+mime.application/gzip=xdg-open

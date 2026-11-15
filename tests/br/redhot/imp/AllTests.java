@@ -12,6 +12,7 @@ public class AllTests {
         PreconditionsTest.run(r);
         DetectorTest.run(r);
         DispatcherTest.run(r);
+        EditorVarTest.run(r);
 
         int code = r.summary();
         System.exit(code);
